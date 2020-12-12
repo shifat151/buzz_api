@@ -1,0 +1,12 @@
+<h1>Welcome to fieldbuzz registration</h1>
+<br>
+<br>
+<form action="{% url 'registration' %}" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <br>
+    <input type="submit" value="Submit">
+
+
+
+</form>
