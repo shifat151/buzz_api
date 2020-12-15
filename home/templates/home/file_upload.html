@@ -1,0 +1,11 @@
+<h1>Upload the CV</h1>
+<br>
+<br>
+<form enctype="multipart/form-data" action="{% url 'uploadCV' %}" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <br>
+    <input type="submit" value="Submit">
+
+
+</form>

@@ -1,8 +1,13 @@
 from django.shortcuts import render, redirect
-from .forms import loginForm, registrationForm
-import json, requests, datetime
-import uuid
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+from .forms import loginForm, registrationForm, fileUpload
+import json, requests, datetime,os
+import uuid,codecs
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.contrib.staticfiles.finders import find
 
+media_root = settings.MEDIA_ROOT
 
 # Create your views here.
 def login(request):
@@ -37,6 +42,7 @@ def filterDictionary(registration_data):
         if registration_data[key] == '':
             del registration_data[key]
     return registration_data
+
 
 def registration(request):
     if request.method == 'POST':
@@ -77,7 +83,7 @@ def registration(request):
                 'on_spot_creation_time': on_spot_creation_time
             }
             # delete a dictionary item if the subsequent form filed is left empty
-            filter_reg_data=filterDictionary(registration_data)
+            filter_reg_data = filterDictionary(registration_data)
 
             registration_url = 'https://recruitment.fisdev.com/api/v0/recruiting-entities/'
             headers = {
@@ -90,7 +96,7 @@ def registration(request):
             # setting reg_id and creation_time in session in case of update the data
             request.session['regid'] = json_data['tsync_id']
             request.session['creation_time'] = json_data['on_spot_creation_time']
-            request.session['cv_file_id']=json_data['cv_file']['id']
+            request.session['cv_file_id'] = json_data['cv_file']['id']
 
             return render(request, 'home/registration.html', {'form': form})
         else:
@@ -98,3 +104,38 @@ def registration(request):
     else:
         form = registrationForm()
         return render(request, 'home/registration.html', {'form': form})
+
+
+def upload_cv(request):
+    if request.method == 'POST':
+        form = fileUpload(request.POST, request.FILES)
+        if form.is_valid():
+            cv=request.FILES['cv']
+            fs = FileSystemStorage()
+            filename = fs.save(str(uuid.uuid4())+cv.name, cv)
+            # uploaded_file_url = fs.url(filename)
+            # uploaded_file_url = staticfiles_storage.url(filename)
+            cv_file=os.path.join(media_root, filename)
+
+            if 'cv_file_id' in request.session:
+                cv_url='https://recruitment.fisdev.com/api/file-object/{}/'.format(request.session['cv_file_id'])
+            else:
+                return redirect('registration')
+            headers = {
+                # 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW',
+                'Authorization': 'Token ' + request.session['token']
+            }
+            files={'file':open(cv_file,'rb')}
+            r = requests.put(cv_url, headers=headers, files=files)
+            print(r.text)
+
+            # with open(cv_file,'rb') as fopen:
+            #     q = fopen.read()
+            #     print(q.decode('latin-1'))
+
+            return render(request, 'home/file_upload.html', {'form': form})
+        else:
+            return render(request, 'home/file_upload.html', {'form': form})
+    else:
+        form = fileUpload()
+        return render(request, 'home/file_upload.html', {'form': form})
