@@ -3,13 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="467877cb-4375-41d4-a6ae-5685ebed9947" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pipfile" beforeDir="false" afterPath="$PROJECT_DIR$/Pipfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pipfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Pipfile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/home/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/home/forms.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/home/templates/home/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/home/templates/home/login.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/home/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/home/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/registration/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/registration/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/registration/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/registration/urls.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,6 +99,7 @@
       <workItem from="1607968886249" duration="6708000" />
       <workItem from="1608009350235" duration="5343000" />
       <workItem from="1608014883119" duration="3525000" />
+      <workItem from="1608054077115" duration="3973000" />
     </task>
     <servers />
   </component>
