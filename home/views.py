@@ -28,10 +28,8 @@ def login(request):
             except:
                 return render(request, 'home/login.html',
                               {'form': form, 'message': 'Something went wrong. Please try again'})
-            else:
-                json_data = json.loads(response.text)
-
-            if response:
+            json_data = json.loads(response.text)
+            if response.status_code==200:
                 request.session['token'] = json_data['token']
             else:
                 return render(request, 'home/login.html', {'form': form, 'message': json_data['message']})
@@ -58,18 +56,20 @@ def registration(request):
     if request.method == 'POST':
         form = registrationForm(request.POST)
         if form.is_valid():
+            on_spot_update_time=''
+            on_spot_creation_time=''
+
             # create tsync_id if it does not exist in session
             if 'regid' in request.session:
                 reg_id = request.session['regid']
             else:
                 reg_id = str(uuid.uuid4())
             # change on_spot_creation_time to now if it does not exist in session.
-            if 'creation_time' in request.session:
-                on_spot_creation_time = request.session['creation_time']
+            if 'reg_id' in request.session:
+                on_spot_update_time = int(datetime.datetime.now().timestamp())
             else:
                 on_spot_creation_time = int(datetime.datetime.now().timestamp())
-            # change on_spot_update_time
-            on_spot_update_time = int(datetime.datetime.now().timestamp())
+
 
             registration_data = {
                 'tsync_id': reg_id,
@@ -92,7 +92,7 @@ def registration(request):
                 'on_spot_update_time': on_spot_update_time,
                 'on_spot_creation_time': on_spot_creation_time
             }
-            # delete a dictionary item if the subsequent form filed is left empty
+            # delete a dictionary item if the subsequent form field is left empty
             filter_reg_data = filterDictionary(registration_data)
 
             registration_url = 'https://recruitment.fisdev.com/api/v0/recruiting-entities/'
@@ -106,14 +106,11 @@ def registration(request):
             except:
                 return render(request, 'home/registration.html',
                               {'form': form, 'message': 'Something went wrong. Please try again'})
-            else:
-                json_data = json.loads(response.text)
 
-
-            if response:
+            json_data = json.loads(response.text)
+            if response.status_code==200 or response.status_code==201:
                 # setting reg_id and creation_time in session in case of update the data
                 request.session['regid'] = json_data['tsync_id']
-                request.session['creation_time'] = json_data['on_spot_creation_time']
                 request.session['cv_file_id'] = json_data['cv_file']['id']
             else:
                 return render(request, 'home/registration.html', {'form': form, 'message': json_data['message']})
@@ -151,10 +148,9 @@ def upload_cv(request):
             except:
                 return render(request, 'home/file_upload.html',
                               {'form': form, 'message': 'Something went wrong. Please try again'})
-            else:
-                json_data = json.loads(response.text)
 
-            if response:
+            json_data = json.loads(response.text)
+            if response.status_code==200:
                 context={'form': form, 'message':'File uploaded successfully'}
             else:
                 return render(request, 'home/registration.html', {'form': form, 'message': json_data['message']})
