@@ -41,8 +41,7 @@ class fileUpload(forms.Form):
         filetype = magic.from_buffer(file.read())
         if not "PDF" in filetype:
             raise ValidationError("Please upload a PDF file")
-        return file
-
         limit = 4 * 1024 * 1024
         if file.size > limit:
             raise ValidationError('File too large. Size should not exceed 4 MiB.')
+        return file
