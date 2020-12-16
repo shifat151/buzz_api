@@ -100,15 +100,25 @@ def registration(request):
                 'content-type': 'application/json',
                 'Authorization': 'Token ' + request.session['token']
             }
-            r = requests.post(registration_url, headers=headers, data=json.dumps(filter_reg_data))
-            json_data = json.loads(r.text)
-            print(r.text)
-            # setting reg_id and creation_time in session in case of update the data
-            request.session['regid'] = json_data['tsync_id']
-            request.session['creation_time'] = json_data['on_spot_creation_time']
-            request.session['cv_file_id'] = json_data['cv_file']['id']
 
-            return render(request, 'home/registration.html', {'form': form})
+            try:
+                response = requests.post(registration_url, headers=headers, data=json.dumps(filter_reg_data))
+            except:
+                return render(request, 'home/registration.html',
+                              {'form': form, 'message': 'Something went wrong. Please try again'})
+            else:
+                json_data = json.loads(response.text)
+
+
+            if response:
+                # setting reg_id and creation_time in session in case of update the data
+                request.session['regid'] = json_data['tsync_id']
+                request.session['creation_time'] = json_data['on_spot_creation_time']
+                request.session['cv_file_id'] = json_data['cv_file']['id']
+            else:
+                return render(request, 'home/registration.html', {'form': form, 'message': json_data['message']})
+
+            return render(request, 'home/registration.html', {'form': form, 'reg_id': request.session['regid']})
         else:
             return render(request, 'home/registration.html', {'form': form})
     else:
@@ -126,6 +136,7 @@ def upload_cv(request):
             # uploaded_file_url = fs.url(filename)
             # uploaded_file_url = staticfiles_storage.url(filename)
             cv_file = os.path.join(media_root, filename)
+            files = {'file': open(cv_file, 'rb')}
 
             if 'cv_file_id' in request.session:
                 cv_url = 'https://recruitment.fisdev.com/api/file-object/{}/'.format(request.session['cv_file_id'])
@@ -135,15 +146,24 @@ def upload_cv(request):
                 # 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW',
                 'Authorization': 'Token ' + request.session['token']
             }
-            files = {'file': open(cv_file, 'rb')}
-            r = requests.put(cv_url, headers=headers, files=files)
-            print(r.text)
+            try:
+                response = requests.put(cv_url, headers=headers, files=files)
+            except:
+                return render(request, 'home/file_upload.html',
+                              {'form': form, 'message': 'Something went wrong. Please try again'})
+            else:
+                json_data = json.loads(response.text)
+
+            if response:
+                context={'form': form, 'message':'File uploaded successfully'}
+            else:
+                return render(request, 'home/registration.html', {'form': form, 'message': json_data['message']})
 
             # with open(cv_file,'rb') as fopen:
             #     q = fopen.read()
             #     print(q.decode('latin-1'))
 
-            return render(request, 'home/file_upload.html', {'form': form})
+            return render(request, 'home/file_upload.html', context)
         else:
             return render(request, 'home/file_upload.html', {'form': form})
     else:

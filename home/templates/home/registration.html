@@ -1,12 +1,35 @@
-<h1>Welcome to fieldbuzz registration</h1>
-<br>
-<br>
-<form action="{% url 'registration' %}" method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <br>
-    <input type="submit" value="Submit">
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="row align-items-center justify-content-center" style="min-height: 100vh">
+        <div class="col-md-6">
+            <h1 class="text-center" style="border-bottom: 1px solid blue;">Fieldbuzz registration</h1>
+            <br>
+            <br>
+            {% if message %}
+                <div class="alert alert-danger text-center" role="alert">
+                    <p>{{ message }}</p>
+                </div>
+            {% endif %}
+            <form action="{% url 'registration' %}" method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <br>
+                {% if reg_id %}
+                    <input type="submit" class="btn btn-success" value="update">
+                    <button class="btn btn-outline-primary">
+                        <a style="text-decoration: none" href="{% url 'uploadCV' %}"> Upload CV</a>
+                    </button>
+                {% else %}
+                    <input type="submit" class="btn btn-success btn-block" value="Submit">
+                {% endif %}
 
 
+            </form>
+            <br>
+            <br>
+        </div>
 
-</form>
+    </div>
+
+{% endblock %}
