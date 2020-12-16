@@ -29,7 +29,7 @@ def login(request):
                 return render(request, 'home/login.html',
                               {'form': form, 'message': 'Something went wrong. Please try again'})
             json_data = json.loads(response.text)
-            if response.status_code==200:
+            if response.status_code == 200:
                 request.session['token'] = json_data['token']
             else:
                 return render(request, 'home/login.html', {'form': form, 'message': json_data['message']})
@@ -56,20 +56,16 @@ def registration(request):
     if request.method == 'POST':
         form = registrationForm(request.POST)
         if form.is_valid():
-            on_spot_update_time=''
-            on_spot_creation_time=''
+            on_spot_update_time = ''
+            on_spot_creation_time = ''
 
             # create tsync_id if it does not exist in session
             if 'regid' in request.session:
                 reg_id = request.session['regid']
-            else:
-                reg_id = str(uuid.uuid4())
-            # change on_spot_creation_time to now if it does not exist in session.
-            if 'reg_id' in request.session:
                 on_spot_update_time = int(datetime.datetime.now().timestamp())
             else:
+                reg_id = str(uuid.uuid4())
                 on_spot_creation_time = int(datetime.datetime.now().timestamp())
-
 
             registration_data = {
                 'tsync_id': reg_id,
@@ -95,7 +91,7 @@ def registration(request):
             # delete a dictionary item if the subsequent form field is left empty
             filter_reg_data = filterDictionary(registration_data)
 
-            registration_url = 'https://recruitment.fisdev.com/api/v0/recruiting-entities/'
+            registration_url = 'https://recruitment.fisdev.com/api/v1/recruiting-entities/'
             headers = {
                 'content-type': 'application/json',
                 'Authorization': 'Token ' + request.session['token']
@@ -108,14 +104,16 @@ def registration(request):
                               {'form': form, 'message': 'Something went wrong. Please try again'})
 
             json_data = json.loads(response.text)
-            if response.status_code==200 or response.status_code==201:
-                # setting reg_id and creation_time in session in case of update the data
+
+            if response.status_code == 200 or response.status_code == 201:
+                # setting reg_id and cv_file_id in session in case of update the data
                 request.session['regid'] = json_data['tsync_id']
                 request.session['cv_file_id'] = json_data['cv_file']['id']
             else:
                 return render(request, 'home/registration.html', {'form': form, 'message': json_data['message']})
 
-            return render(request, 'home/registration.html', {'form': form, 'reg_id': request.session['regid']})
+            return render(request, 'home/registration.html', {'form': form, 'reg_id': request.session['regid'],
+                                                              'message': 'Information updated successfully'})
         else:
             return render(request, 'home/registration.html', {'form': form})
     else:
@@ -150,8 +148,9 @@ def upload_cv(request):
                               {'form': form, 'message': 'Something went wrong. Please try again'})
 
             json_data = json.loads(response.text)
-            if response.status_code==200:
-                context={'form': form, 'message':'File uploaded successfully'}
+
+            if response.status_code == 200:
+                context = {'form': form, 'message': 'File uploaded successfully'}
             else:
                 return render(request, 'home/registration.html', {'form': form, 'message': json_data['message']})
 
